@@ -1,0 +1,38 @@
+User Info
+
+  GET /user/id done
+  PUT /user/id
+
+Sign Up done
+
+  POST /users/register 
+      contact_no: "7020524261"
+      email_id: "dfsd@sdvsdvsdvjndfjvnefjv.ocm"
+      first_name: "sdvsd"
+      otp_only: true
+      password: ""
+
+Login
+
+  GET /users/verify_login_id { has_password: true } done
+
+  With Password
+    POST /users/login { login_id: '', password: } done
+
+  Without Password
+    POST /auth/generate_otp { login_id: '' }
+    POST /users/login_with_otp { login_id: '', otp: '' }
+
+Forgot Password
+
+  POST /users/forgot_password { login_id: '' }  //destination where otp needs to be sent
+  POST /users/validate_reset_otp { login_id: '', otp: '' } 
+
+Otps
+  - Sign Up
+  - Login In
+  - Recovery
+
+
+
+
