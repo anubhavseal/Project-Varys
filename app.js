@@ -8,16 +8,18 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const app = express();
 const { DB } = require('./db/db-connector');
-const HttpError = require('./error');
+const { HttpError } = require('./error');
 
 const customers = require('./api/customers');
+const guests = require('./api/guests');
 
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use('/api/customers', customers);
+app.use('/api/v1/customers', customers);
+app.use('/api/v1/guests', guests);
 
 app.get('/', (req, res) => {
   console.log('hello there');

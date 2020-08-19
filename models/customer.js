@@ -6,12 +6,12 @@ const moment = require('moment');
 
 const { Sequelize, DB } = require('../db/db-connector');
 const Token = require('./token');
-const ApiError = require('../error');
+const HttpBadRequestError = require('../error');
 
 class Customer extends Model {
   static async register(userInfo) {
     const existingCustomer = await Customer.findOne({ where: { contact_no: userInfo.contact_no } });
-    if (existingCustomer) throw new ApiError(400, 'Account is already registered with us');
+    if (existingCustomer) throw new HttpBadRequestError(400, 'Account is already registered with us');
     const { password } = userInfo;
     const salt = await bcrypt.genSalt(10);
     const hPassword = await bcrypt.hash(password, salt);
@@ -23,13 +23,13 @@ class Customer extends Model {
    *
    * @param {{email: string, password: string}} credentials
    * @description creates a auth token with an expiry of one year if credentials are valid
-   * @throws ApiError Exception
+   * @throws HttpBadRequestError Exception
    */
   static async login(credentials) {
     const customer = await Customer.findOne({ where: { email_id: credentials.email } });
-    if (!customer) throw new ApiError(400, 'Account is not registered with us');
+    if (!customer) throw new HttpBadRequestError(400, 'Account is not registered with us');
     const isPasswordValid = await bcrypt.compare(credentials.password, customer.password);
-    if (!isPasswordValid) throw new ApiError(400, 'Invalid Password');
+    if (!isPasswordValid) throw new HttpBadRequestError(400, 'Invalid Password');
     else {
       const token = uuidv4();
       const tokenExpiry = moment().add(1, 'years').toString();

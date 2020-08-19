@@ -19,7 +19,7 @@ router.get('/validate_login_id', async (req, res) => {
 });
 
 router.get('/info', async (req, res) => {
-  const customerAuthToken = req.cookies['__wd_dev_varys'];
+  const customerAuthToken = req.cookies['__wd_dev_varys'] || req.headers['X-Auth-Token'];
   if (!customerAuthToken) throw new HttpBadRequestError(400, 'Customer is not logged in');
   const token = await Token.findOne({ where: { token: customerAuthToken, deleted_at: null }, include: Customer });
   if (!token) throw new HttpBadRequestError(400);
@@ -65,8 +65,9 @@ router.post('/login', async (req, res) => {
 
   const { login_id, password } = req.body;
   const { expiry, token } = await Customer.login({ email: login_id, password });
+  res.setHeader('X-Auth-Token', token);
   res.cookie('__wd_dev_varys', token, { expires: new Date(expiry) });
-  res.status(200).send({ status: true });
+  res.status(200).send({ status: true, data: { message: 'Login success' } });
 });
 
 router.put('/logout', async (req, res) => {
