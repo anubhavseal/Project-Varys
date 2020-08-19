@@ -2,7 +2,7 @@ const Customer = require('./customer');
 const Token = require('./token');
 const Guest = require('./guest');
 
-Customer.hasMany(Token);
+//Customer.hasMany(Token);
 Customer.hasOne(Guest, { foreignKey: 'customer_id' });
 
 Token.belongsTo(Customer, { foreignKey: 'customer_id' });

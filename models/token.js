@@ -7,7 +7,7 @@ const { HttpBadRequestError } = require('../error');
 class Token extends Model {
   static async logout(customerAuthToken) {
     const token = await Token.findOne({ where: { token: customerAuthToken } });
-    if (!token) throw new HttpBadRequestError(400, 'Alliens are not allowed yet');
+    if (!token) throw new HttpBadRequestError('Alliens are not allowed yet');
     token['deleted_at'] = new Date();
     token['destroyed_because'] = 'Logged Out';
     await token.save();

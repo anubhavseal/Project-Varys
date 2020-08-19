@@ -6,17 +6,18 @@ const moment = require('moment');
 
 const { Sequelize, DB } = require('../db/db-connector');
 const Token = require('./token');
-const HttpBadRequestError = require('../error');
+const { HttpBadRequestError } = require('../error');
 
 class Customer extends Model {
   static async register(userInfo) {
     const existingCustomer = await Customer.findOne({ where: { contact_no: userInfo.contact_no } });
-    if (existingCustomer) throw new HttpBadRequestError(400, 'Account is already registered with us');
+    if (existingCustomer) throw new HttpBadRequestError('Account is already registered with us');
     const { password } = userInfo;
     const salt = await bcrypt.genSalt(10);
     const hPassword = await bcrypt.hash(password, salt);
     const customer = await Customer.create({ ...userInfo, customer_identifier: 'WD12345', password: hPassword });
-    return { id: customer.id, customer_identifier: customer.customer_identifier };
+    const { expiry, token } = await Customer.login({ email: customer.email_id, password });
+    return { customer, token, expiry };
   }
 
   /**
@@ -27,9 +28,9 @@ class Customer extends Model {
    */
   static async login(credentials) {
     const customer = await Customer.findOne({ where: { email_id: credentials.email } });
-    if (!customer) throw new HttpBadRequestError(400, 'Account is not registered with us');
+    if (!customer) throw new HttpBadRequestError('Account is not registered with us');
     const isPasswordValid = await bcrypt.compare(credentials.password, customer.password);
-    if (!isPasswordValid) throw new HttpBadRequestError(400, 'Invalid Password');
+    if (!isPasswordValid) throw new HttpBadRequestError('Invalid Password');
     else {
       const token = uuidv4();
       const tokenExpiry = moment().add(1, 'years').toString();
@@ -38,6 +39,14 @@ class Customer extends Model {
     }
   }
 }
+
+Customer.prototype.toJSON = function () {
+  var values = Object.assign({}, this.get());
+  delete values.password;
+  delete values.createdAt;
+  delete values.updatedAt;
+  return values;
+};
 
 Customer.init(
   {
