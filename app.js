@@ -8,8 +8,9 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const app = express();
 const { DB } = require('./db/db-connector');
+const HttpError = require('./error');
+
 const customers = require('./api/customers');
-const ApiError = require('./error');
 
 app.use(morgan('dev'));
 app.use(cookieParser());
@@ -24,7 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(function (err, req, res, next) {
-  if (ApiError.isOperationalError(err)) {
+  if (HttpError.isOperationalError(err)) {
     const { status, message, ...rest } = err.handleError();
     res.status(status).send({
       status: false,

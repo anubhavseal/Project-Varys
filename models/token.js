@@ -1,18 +1,20 @@
 'use strict';
 const { Model } = require('sequelize');
+
 const { Sequelize, DB } = require('../db/db-connector');
-const Customer = require('./customer');
-// const { User } = require('./customer');
-// module.exports = (sequelize, Sequelize.DataTypes) => {
-//   return Token;
-// };
+const { HttpBadRequestError } = require('../error');
 
 class Token extends Model {
-  static associate(models) {
-    // define association here
-    // Token.belongsTo(User);
+  static async logout(customerAuthToken) {
+    const token = await Token.findOne({ where: { token: customerAuthToken } });
+    if (!token) throw new HttpBadRequestError(400, 'Alliens are not allowed yet');
+    token['deleted_at'] = new Date();
+    token['destroyed_because'] = 'Logged Out';
+    await token.save();
+    return true;
   }
 }
+
 Token.init(
   {
     customer_id: {

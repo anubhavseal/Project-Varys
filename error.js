@@ -33,7 +33,7 @@ let decorators = {
   },
 };
 
-function ApiError(httpCode = 500, message, payload) {
+function HttpError(httpCode = 500, message, payload) {
   Error.call(this);
   Error.captureStackTrace(this);
   this.message = message;
@@ -42,15 +42,24 @@ function ApiError(httpCode = 500, message, payload) {
   this.meta = { ...decorators[httpCode.toString()], message: this.message, ...this.payload };
 }
 
-ApiError.isOperationalError = function (err) {
-  return err instanceof ApiError;
+HttpError.isOperationalError = function (err) {
+  return err instanceof HttpError;
 };
 
-ApiError.prototype.handleError = function () {
+HttpError.prototype.handleError = function () {
   console.log(chalk.magentaBright(this));
   return this.meta;
 };
 
-ApiError.prototype.__proto__ = Error.prototype;
+HttpError.prototype.__proto__ = Error.prototype;
 
-module.exports = ApiError;
+function HttpBadRequestError(message = 'Invalid Input') {
+  HttpError.call(this, 400, message);
+}
+
+HttpBadRequestError.prototype.__proto__ = HttpError.prototype;
+
+module.exports = {
+  HttpError,
+  HttpBadRequestError,
+};
