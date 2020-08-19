@@ -4,36 +4,6 @@ const router = require('express').Router();
 const { Customer, Token } = require('../../models');
 const { HttpBadRequestError } = require('../../error');
 
-router.get('/validate_login_id', async (req, res) => {
-  const { login_id } = req.query;
-  const schema = { login_id: Joi.string().email().required() };
-
-  const { error } = Joi.object(schema).validate(req.query);
-  if (error) throw new HttpBadRequestError(error.message, error.details[0]);
-
-  const customer = await Customer.findOne({ where: { email_id: login_id } });
-  if (!customer) throw new HttpBadRequestError('Account is not registered with us');
-
-  const response = { is_valid: true, has_password: customer.password ? true : false };
-  res.status(200).send({ status: true, data: response });
-});
-
-router.get('/info', async (req, res) => {
-  const customerAuthToken = req.cookies['__wd_dev_varys'] || req.headers['X-Auth-Token'];
-  if (!customerAuthToken) throw new HttpBadRequestError('Customer is not logged in');
-  const token = await Token.findOne({ where: { token: customerAuthToken, deleted_at: null }, include: Customer });
-  if (!token) throw new HttpBadRequestError(400);
-  const customer = await token.getCustomer({ attributes: { exclude: ['password', 'createdAt', 'updatedAt'] } });
-  return res.status(200).send({ status: true, data: customer });
-});
-
-router.put('/', async (req, res) => {
-  const customerToken = req.cookies['__wd_dev_varys'];
-  const token = await Token.findOne({ where: { token: customerToken }, include: Customer });
-  const customer = await token.getUser();
-  return res.status(200).send({ status: true, data: customer });
-});
-
 router.post('/register', async (req, res, next) => {
   const schema = {
     first_name: Joi.string().required(),
@@ -62,6 +32,20 @@ router.post('/register', async (req, res, next) => {
   });
 });
 
+router.get('/validate_login_id', async (req, res) => {
+  const { login_id } = req.query;
+  const schema = { login_id: Joi.string().email().required() };
+
+  const { error } = Joi.object(schema).validate(req.query);
+  if (error) throw new HttpBadRequestError(error.message, error.details[0]);
+
+  const customer = await Customer.findOne({ where: { email_id: login_id } });
+  if (!customer) throw new HttpBadRequestError('Account is not registered with us');
+
+  const response = { is_valid: true, has_password: customer.password ? true : false };
+  res.status(200).send({ status: true, data: response });
+});
+
 router.post('/login', async (req, res) => {
   const schema = {
     username: Joi.string().email().required(),
@@ -84,6 +68,22 @@ router.put('/logout', async (req, res) => {
   isLoggedOut = Token.logout(customerAuthToken);
   isLoggedOut && res.cookie('__wd_dev_varys', token, { expires: new Date() });
   res.status(200).send({ status: true });
+});
+
+router.get('/detail', async (req, res) => {
+  const customerAuthToken = req.cookies['__wd_dev_varys'] || req.headers['X-Auth-Token'];
+  if (!customerAuthToken) throw new HttpBadRequestError('Customer is not logged in');
+  const token = await Token.findOne({ where: { token: customerAuthToken, deleted_at: null }, include: Customer });
+  if (!token) throw new HttpBadRequestError(400);
+  const customer = await token.getCustomer({ attributes: { exclude: ['password', 'createdAt', 'updatedAt'] } });
+  return res.status(200).send({ status: true, data: customer });
+});
+
+router.put('/', async (req, res) => {
+  const customerToken = req.cookies['__wd_dev_varys'];
+  const token = await Token.findOne({ where: { token: customerToken }, include: Customer });
+  const customer = await token.getUser();
+  return res.status(200).send({ status: true, data: customer });
 });
 
 router.get('/:customerId', async (req, res) => {
