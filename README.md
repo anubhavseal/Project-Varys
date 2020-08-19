@@ -32,7 +32,6 @@ Customer is the primary entity.
     	id
     	customer_identifier
     	first_name
-        last_name
     	email_id
     	contact_no
     	password
