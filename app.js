@@ -7,8 +7,9 @@ const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
 const express = require('express');
 const app = express();
-const { DB } = require('./db/db-connector');
-const { HttpError } = require('./error');
+
+const { DB } = require('./utils/db-connector');
+const { errorResponder } = require('./middlewares/error-responder');
 
 const swaggerDocument = require('./swagger.json');
 const customers = require('./api/customers');
@@ -29,18 +30,7 @@ app.get('/', (req, res) => {
   res.status(200).send({ 1: 1 });
 });
 
-app.use(function (err, req, res, next) {
-  if (HttpError.isOperationalError(err)) {
-    const { status, message, ...rest } = err.handleError();
-    res.status(status).send({
-      status: false,
-      message: message,
-      data: rest,
-    });
-  } else {
-    next(err);
-  }
-});
+app.use(errorResponder);
 
 async function bootstrap() {
   try {

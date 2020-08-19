@@ -1,8 +1,8 @@
 'use strict';
 const { Model } = require('sequelize');
 
-const { Sequelize, DB } = require('../db/db-connector');
-const { HttpBadRequestError } = require('../error');
+const { Sequelize, DB } = require('../utils/db-connector');
+const { HttpBadRequestError } = require('../utils/error');
 
 class Token extends Model {
   static async logout(customerAuthToken) {

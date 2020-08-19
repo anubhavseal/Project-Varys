@@ -2,7 +2,7 @@ const Joi = require('joi');
 const router = require('express').Router();
 
 const { Customer, Token } = require('../../models');
-const { HttpBadRequestError } = require('../../error');
+const { HttpBadRequestError } = require('../../utils/error');
 
 router.post('/register', async (req, res, next) => {
   const schema = {

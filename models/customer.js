@@ -4,9 +4,9 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
 
-const { Sequelize, DB } = require('../db/db-connector');
+const { Sequelize, DB } = require('../utils/db-connector');
 const Token = require('./token');
-const { HttpBadRequestError } = require('../error');
+const { HttpBadRequestError } = require('../utils/error');
 
 class Customer extends Model {
   static async register(userInfo) {

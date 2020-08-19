@@ -1,6 +1,6 @@
 'use strict';
 const { Model } = require('sequelize');
-const { Sequelize, DB } = require('../db/db-connector');
+const { Sequelize, DB } = require('../utils/db-connector');
 
 class Guest extends Model {}
 Guest.init(
