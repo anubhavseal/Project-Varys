@@ -9,7 +9,7 @@ const express = require('express');
 const app = express();
 
 const { DB } = require('./utils/db-connector');
-const { errorResponder } = require('./middlewares/error-responder');
+const errorResponder = require('./middlewares/error-responder');
 
 const swaggerDocument = require('./swagger.json');
 const customers = require('./api/customers');

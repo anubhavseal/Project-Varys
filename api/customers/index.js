@@ -24,8 +24,13 @@ router.post('/register', async (req, res, next) => {
     contact_no,
     email_id,
   });
+
   res.setHeader('X-Auth-Token', token);
-  res.cookie('__wd_dev_varys', token, { expires: new Date(expiry) });
+  res.cookie('__wd_dev_varys', token, { expires: new Date(expiry).toUTCString() });
+
+  res.removeHeader('X-Guest-Token');
+  res.cookie('__wd_guest', token, { expires: new Date().toUTCString() });
+
   res.status(201).send({
     status: true,
     data: customer,
@@ -57,8 +62,13 @@ router.post('/login', async (req, res) => {
 
   const { username, password } = req.body;
   const { expiry, token } = await Customer.login({ email: username, password });
+
   res.setHeader('X-Auth-Token', token);
-  res.cookie('__wd_dev_varys', token, { expires: new Date(expiry) });
+  res.cookie('__wd_dev_varys', token, { expires: new Date(expiry).toUTCString() });
+
+  res.removeHeader('X-Guest-Token');
+  res.cookie('__wd_guest', token, { expires: new Date().toUTCString() });
+
   res.status(201).send({ status: true, data: { message: 'Login success' } });
 });
 
@@ -66,7 +76,7 @@ router.put('/logout', async (req, res) => {
   const customerAuthToken = req.cookies['__wd_dev_varys'];
   if (!customerAuthToken) throw new HttpBadRequestError('Customer is not logged in');
   isLoggedOut = Token.logout(customerAuthToken);
-  isLoggedOut && res.cookie('__wd_dev_varys', token, { expires: new Date() });
+  isLoggedOut && res.cookie('__wd_dev_varys', token, { expires: new Date().toUTCString() });
   res.status(200).send({ status: true });
 });
 
