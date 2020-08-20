@@ -29,11 +29,11 @@ Customer is the primary entity.
 
 **Attributes**
 
-    	id
-    	customer_identifier
-    	first_name
-        last_name
-    	email_id
-    	contact_no
-    	password
-    	user_type
+id
+customer_identifier
+first_name
+last_name
+email_id
+contact_no
+password
+user_type
