@@ -12,8 +12,8 @@ const { DB } = require('./utils/db-connector');
 const errorResponder = require('./middlewares/error-responder');
 
 const swaggerDocument = require('./swagger.json');
-const customers = require('./api/customers');
-const guests = require('./api/guests');
+const customers = require('./routes/customers');
+const guests = require('./routes/guests');
 
 app.use(morgan('dev'));
 app.use(cookieParser());

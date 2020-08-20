@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { Guest } = require('../../models');
+const { Guest } = require('../models');
 const { v4: uuidv4 } = require('uuid');
 
 router.post('/create', async (req, res) => {
