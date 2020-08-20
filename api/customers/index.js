@@ -26,10 +26,10 @@ router.post('/register', async (req, res, next) => {
   });
 
   res.setHeader('X-Auth-Token', token);
-  res.cookie('__wd_dev_varys', token, { expires: new Date(expiry).toUTCString() });
+  res.cookie('__wd_dev_varys', token, { expires: new Date(expiry) });
 
   res.removeHeader('X-Guest-Token');
-  res.cookie('__wd_guest', token, { expires: new Date().toUTCString() });
+  res.cookie('__wd_guest', token, { expires: new Date() });
 
   res.status(201).send({
     status: true,
