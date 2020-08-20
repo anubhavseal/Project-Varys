@@ -29,8 +29,8 @@ Customer is the primary entity.
 
 **Attributes**
 
-id
-customer_identifier
+  id
+  customer_identifier
 first_name
 last_name
 email_id
