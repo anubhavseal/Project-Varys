@@ -10,7 +10,9 @@ const { HttpBadRequestError } = require('../utils/error');
 
 class Customer extends Model {
   static async register(userInfo) {
-    const existingCustomer = await Customer.findOne({ where: { contact_no: userInfo.contact_no } });
+    const existingCustomer = await Customer.findOne({
+      where: { contact_no: userInfo.contact_no, email_id: userInfo.email_id },
+    });
     if (existingCustomer) throw new HttpBadRequestError('Account is already registered with us');
     const { password } = userInfo;
     const salt = await bcrypt.genSalt(10);
