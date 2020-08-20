@@ -4,6 +4,20 @@ const { Customer, Token } = require('../models');
 const { HttpBadRequestError } = require('../utils/error');
 
 class CustomerController {
+  static setAuthToken(res, token, expiry) {
+    res.setHeader('X-Auth-Token', token);
+    res.cookie('__wd_dev_varys', token, { expires: new Date(expiry) });
+  }
+
+  static removeAuthToken(res) {
+    res.clearCookie('__wd_dev_varys');
+  }
+
+  static removeGuestAuthToken(res) {
+    res.removeHeader('X-Guest-Token');
+    res.clearCookie('__wd_guest');
+  }
+
   async create(req, res, next) {
     const schema = {
       first_name: Joi.string().required(),
@@ -25,11 +39,8 @@ class CustomerController {
       email_id,
     });
 
-    res.setHeader('X-Auth-Token', token);
-    res.cookie('__wd_dev_varys', token, { expires: new Date(expiry) });
-
-    res.removeHeader('X-Guest-Token');
-    res.cookie('__wd_guest', token, { expires: new Date() });
+    CustomerController.setAuthToken(res, token, expiry);
+    CustomerController.removeGuestAuthToken(res);
 
     res.status(201).send({
       status: true,
@@ -63,11 +74,8 @@ class CustomerController {
     const { username, password } = req.body;
     const { expiry, token } = await Customer.login({ email: username, password });
 
-    res.setHeader('X-Auth-Token', token);
-    res.cookie('__wd_dev_varys', token, { expires: new Date(expiry).toUTCString() });
-
-    res.removeHeader('X-Guest-Token');
-    res.cookie('__wd_guest', token, { expires: new Date().toUTCString() });
+    CustomerController.setAuthToken(res, token, expiry);
+    CustomerController.removeGuestAuthToken(res);
 
     res.status(201).send({ status: true, data: { message: 'Login success' } });
   }
@@ -75,8 +83,8 @@ class CustomerController {
   async logout(req, res) {
     const customerAuthToken = req.cookies['__wd_dev_varys'];
     if (!customerAuthToken) throw new HttpBadRequestError('Customer is not logged in');
-    isLoggedOut = Token.logout(customerAuthToken);
-    isLoggedOut && res.cookie('__wd_dev_varys', token, { expires: new Date().toUTCString() });
+    const isLoggedOut = await Token.logout(customerAuthToken);
+    isLoggedOut && CustomerController.removeAuthToken(res);
     res.status(200).send({ status: true });
   }
 
